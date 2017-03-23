@@ -8,29 +8,39 @@ import org.apache.hadoop.mapreduce.Reducer;
 public class MedianReducer
   extends Reducer<Text, IntWritable, Text, IntWritable> {
 ArrayList<Integer> temperatureList = new ArrayList<Integer>();
-	String temp = null;
+	double median = 0.0;
   
   @Override
   public void reduce(Text key, Iterable<IntWritable> values,
       Context context)
       throws IOException, InterruptedException {
     
-    int median = 0;
+    
 		for (IntWritable value : values) {
 			temperatureList.add(value.get());
+			median = median(temperatureList);
+			
+			
 		}
-		Collections.sort(temperatureList);
-		int size  = temperatureList.size();
-
-		if(size%2 == 0){
-			int half = size/2;
-
-			median  = temperatureList.get(half);
-		}else {
-			int half = (size + 1)/2;
-			median = temperatureList.get(half -1);
-		}
-		context.write(key, new IntWritable(median));
+		context.write(key, new IntWritable((int)median));
 	}
+public static double median(List <Integer> list){
+	double result =0.0;
+	double median;
+	for (int i =0; i < list.size(); i++){
+		Collections.sort(list);
+		int size = list.size();
+		if (size%2 == 0){
+			int half = size/2;
+			median  = list.get(half);
+		}
+		else{
+			int half = (size+1)/2;
+			median = list.get(half-1);
+		}
+		result = median;
+	}
+	return result;
+}
 
 }
